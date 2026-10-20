@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🥪 Fast Lanches — Controle de Validade
+# 🥪 | FAST LANCHES - CONTROLE DE VALIDADE
 
 **Sistema simples para monitorar a validade dos produtos da cantina e evitar desperdícios.**
 
@@ -98,10 +98,10 @@ Depois, acesse `http://localhost:5000`. -->
 
 | 👤 Nome | GitHub |
 | :------------------ |:------------------ |
-| **Pedro Cartaxo**   | @pedrocartaxo598-eng   |
-| **José Miguel**     | @Rodrigo-4951     |
-| **Rodrigo Cardoso** | @jmiguelsena156     |
-| **Dom Henrique**    | @Dom-Henrique     |
+| **Pedro Cartaxo**   | [@pedrocartaxo598-eng](https://github.com/pedrocartaxo598-eng)   |
+| **José Miguel**     | [@Rodrigo-4951](https://github.com/Rodrigo-4951)     |
+| **Rodrigo Cardoso** | [@jmiguelsena156](https://github.com/jmiguelsena156)     |
+| **Dom Henrique**    | [@Dom-Henrique](https://github.com/Dom-Henrique)    |
 
 </div>
 
