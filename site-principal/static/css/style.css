@@ -1,0 +1,378 @@
+:root {
+    color-scheme: light;
+    --green: #28724a;
+    --green-dark: #1d5738;
+    --green-soft: #eaf4e9;
+    --orange: #f2a541;
+    --cream: #fffaf0;
+    --ink: #26352b;
+    --muted: #68756c;
+    --border: #e2e9df;
+    --red: #b64235;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 48px 20px;
+    background:
+        radial-gradient(circle at 8% 12%, rgb(242 165 65 / 14%) 0 8%, transparent 8.2%),
+        linear-gradient(135deg, #f4f8ed, #fff7e9);
+    color: var(--ink);
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+.page {
+    width: min(100%, 900px);
+    margin: 0 auto;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+.brand-mark {
+    display: grid;
+    width: 64px;
+    height: 64px;
+    flex: 0 0 64px;
+    place-items: center;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgb(42 69 47 / 10%);
+    font-size: 2rem;
+}
+
+.eyebrow {
+    margin: 0 0 5px;
+    color: var(--green);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+    margin-top: 0;
+}
+
+h1 {
+    margin-bottom: 6px;
+    color: var(--green-dark);
+    font-size: clamp(1.7rem, 5vw, 2.25rem);
+}
+
+.intro,
+.section-heading p {
+    margin-bottom: 0;
+    color: var(--muted);
+}
+
+.panel {
+    padding: 28px;
+    border: 1px solid rgb(40 114 74 / 9%);
+    border-radius: 18px;
+    background: rgb(255 255 255 / 96%);
+    box-shadow: 0 12px 34px rgb(42 69 47 / 8%);
+}
+
+.form-panel {
+    margin-bottom: 22px;
+}
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.section-heading h2 {
+    margin-bottom: 5px;
+    color: var(--green-dark);
+    font-size: 1.18rem;
+}
+
+.section-heading p {
+    font-size: 0.9rem;
+}
+
+.section-icon {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    place-items: center;
+    border-radius: 13px;
+    background: var(--green-soft);
+    color: var(--green);
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.basket-icon {
+    font-size: 1.25rem;
+}
+
+.form-fields {
+    display: grid;
+    grid-template-columns: 1.5fr 0.8fr 1fr;
+    gap: 16px;
+    margin-top: 25px;
+}
+
+.field label {
+    display: block;
+    margin-bottom: 7px;
+    color: #3c5142;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.field input {
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    outline: none;
+    background: var(--cream);
+    color: var(--ink);
+}
+
+.field input:focus {
+    border-color: var(--green);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgb(40 114 74 / 14%);
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.feedback {
+    min-height: 1.25em;
+    margin: 0;
+    color: var(--red);
+    font-size: 0.9rem;
+}
+
+.feedback.success {
+    color: var(--green);
+}
+
+.primary-button,
+.delete-button {
+    min-height: 44px;
+    padding: 10px 18px;
+    border: 0;
+    border-radius: 9px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.primary-button {
+    background: var(--green);
+    color: #fff;
+    transition: background 150ms ease, transform 150ms ease;
+}
+
+.primary-button:hover {
+    transform: translateY(-1px);
+    background: var(--green-dark);
+}
+
+.primary-button:focus-visible,
+.delete-button:focus-visible {
+    outline: 3px solid var(--orange);
+    outline-offset: 3px;
+}
+
+.inventory-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--muted);
+    font-size: 0.8rem;
+}
+
+.legend-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--orange);
+}
+
+.empty-state {
+    padding: 34px 16px;
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    text-align: center;
+}
+
+.empty-state > span {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 2rem;
+}
+
+.empty-state h3 {
+    margin-bottom: 6px;
+    color: var(--green-dark);
+    font-size: 1rem;
+}
+
+.empty-state p {
+    margin-bottom: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.product-list {
+    display: grid;
+    gap: 10px;
+}
+
+.product-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 20px;
+    padding: 15px 16px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: #fffefa;
+}
+
+.product-name {
+    overflow-wrap: anywhere;
+    margin: 0 0 4px;
+    color: var(--green-dark);
+    font-weight: 700;
+}
+
+.product-expiration,
+.product-quantity {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.88rem;
+}
+
+.product-quantity strong {
+    color: var(--ink);
+}
+
+.expiry-status {
+    display: inline-block;
+    margin-top: 7px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: var(--green-soft);
+    color: var(--green-dark);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.expiry-status.soon {
+    background: #fff1d8;
+    color: #8a570c;
+}
+
+.expiry-status.expired {
+    background: #fbe9e6;
+    color: var(--red);
+}
+
+.delete-button {
+    min-height: 38px;
+    padding: 8px 11px;
+    background: #f7eeeb;
+    color: var(--red);
+    font-size: 0.84rem;
+}
+
+.delete-button:hover {
+    background: #f2dcd6;
+}
+
+footer {
+    padding: 18px 0 0;
+    color: var(--muted);
+    font-size: 0.82rem;
+    text-align: center;
+}
+
+@media (max-width: 640px) {
+    body {
+        padding: 28px 14px;
+    }
+
+    .panel {
+        padding: 21px 18px;
+    }
+
+    .form-fields {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-top: 20px;
+    }
+
+    .form-actions,
+    .inventory-heading {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .primary-button {
+        width: 100%;
+    }
+
+    .product-card {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+    }
+
+    .product-quantity {
+        grid-column: 1;
+    }
+
+    .delete-button {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+}
