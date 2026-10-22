@@ -114,4 +114,4 @@ pip install flask-sqlalchemy
 
 ## 📄 Licença
 
-Pojeto foi desenvolvido para fins educacionais.
+O projeto foi desenvolvido para fins educacionais.
