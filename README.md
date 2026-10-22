@@ -67,29 +67,36 @@ Clone o repositório:
 
    git clone git@github.com:pedrocartaxo598-eng/Loja.js.git
 ```
-<!-- 2. Entre na pasta do projeto:
+1. Entre na pasta do projeto:
 ```bash
-   cd fast-lanches
+   cd site-principal
 ```
-3. Abra o arquivo `index.html` no navegador.
+2. Crie um ambiente virtual
 
-**Versão futura (com Flask):**
+```bash
+python -m venv .venv
+source .venv/bin/Activate
+```
+
+3. Instale as dependências
 
 ```bash
 pip install flask
-python app.py
+pip install flask-login
+pip install sqlalchemy
+pip install flask-sqlalchemy
 ```
 
-Depois, acesse `http://localhost:5000`. -->
+4. Rode o arquivo ```__init__.py```
 
 ## 🗺️ Roadmap
 
 - [x] Interface em HTML, CSS e JavaScript
 - [x] Lógica de verificação de validade no front-end
-- [ ] Criar servidor com Flask
-- [ ] Integrar banco de dados (SQLite)
+- [x] Criar servidor com Flask
+- [x] Integrar banco de dados (SQLite)
 - [ ] Criar rotas de API (cadastrar, listar, editar e excluir)
-- [ ] Alertas automáticos de produtos próximos do vencimento
+- [x] Alertas automáticos de produtos próximos do vencimento
 - [ ] Sistema de login para funcionários
 
 ## 👥 Colaboradores
