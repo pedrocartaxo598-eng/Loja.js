@@ -15,7 +15,7 @@ class Base(DeclarativeBase):
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
-class Usuario(db.Model):
+class Usuario(db.Model, UserMixin):
     id: Mapped[int] = mapped_column(primary_key=True)
     nomeCompleto: Mapped[str]
     email: Mapped[str] = mapped_column(unique=True)
