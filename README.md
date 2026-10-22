@@ -45,14 +45,13 @@ O front-end foi desenvolvido com **HTML, CSS e JavaScript**, e a próxima etapa 
 ```
 site-principal/
 ├── templates
-├── └── index.html
 ├── assets/
 ├── └── css
-├────── └── style.css
 ├── └──js/
-│       └── script.js
-├── app.py           
-└── README.md
+├── __init__.py
+├── db.py           
+.gitignore
+README.md
 ```
 
 ## 🚀 Como executar
@@ -95,9 +94,9 @@ pip install flask-sqlalchemy
 - [x] Lógica de verificação de validade no front-end
 - [x] Criar servidor com Flask
 - [x] Integrar banco de dados (SQLite)
-- [ ] Criar rotas de API (cadastrar, listar, editar e excluir)
+- [x] Criar rotas de API (cadastrar, listar, editar e excluir)
 - [x] Alertas automáticos de produtos próximos do vencimento
-- [ ] Sistema de login para funcionários
+- [x] Sistema de login para funcionários
 
 ## 👥 Colaboradores
 
