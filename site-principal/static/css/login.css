@@ -11,13 +11,15 @@
 
 :root {
     color-scheme: light;
-    --green: #28724a;
-    --green-dark: #1d5738;
-    --orange: #f2a541;
-    --cream: #fffaf0;
+    --green: #178a13;
+    --green-dark: #00661a;
+    --tomato: #E63946;
+    --box-background: #f5fff5;
     --ink: #26352b;
-    --muted: #68756c;
+    --muted: #687075;
     --border: #dce6dc;
+    --buttons-color: #ffb525;
+    --buttons-color-hover: #ffa525;
 }
 
 * {
@@ -31,9 +33,7 @@ body {
     display: grid;
     place-items: center;
     background:
-        radial-gradient(circle at 12% 18%, rgb(242 165 65 / 18%) 0 8%, transparent 8.2%),
-        radial-gradient(circle at 88% 82%, rgb(40 114 74 / 12%) 0 12%, transparent 12.2%),
-        linear-gradient(135deg, #f4f8ed, #fff4df);
+        linear-gradient(135deg, #5ae473, #11743c);
     color: var(--ink);
     font-family: "Segoe UI", Arial, sans-serif;
 }
@@ -61,7 +61,7 @@ body {
     height: 4px;
     margin: 14px auto 26px;
     border-radius: 999px;
-    background: var(--orange);
+    background: var(--tomato);
 }
 
 .input-group {
@@ -83,7 +83,7 @@ body {
     border: 1px solid var(--border);
     border-radius: 10px;
     outline: none;
-    background: var(--cream);
+    background: var(--box-background);
     color: var(--ink);
     font: inherit;
     transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
@@ -105,7 +105,7 @@ body {
     margin-top: 4px;
     border: 0;
     border-radius: 10px;
-    background: var(--green);
+    background: var(--buttons-color);
     color: #fff;
     cursor: pointer;
     font: inherit;
@@ -115,13 +115,13 @@ body {
 
 .login-container form button:hover {
     transform: translateY(-1px);
-    background: var(--green-dark);
+    background: var(--buttons-color-hover);
     box-shadow: 0 6px 14px rgb(29 87 56 / 20%);
 }
 
 .login-container form button:focus-visible,
 .switch-form a:focus-visible {
-    outline: 3px solid var(--orange);
+    outline: 3px solid var(--tomato);
     outline-offset: 3px;
 }
 
