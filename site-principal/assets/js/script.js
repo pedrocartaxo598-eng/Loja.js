@@ -1,5 +1,5 @@
-const STORAGE_KEY = 'cantinaProdutos';
 const form = document.getElementById('product-form');
+const submitButton = form.querySelector('button[type="submit"]');
 const nameInput = document.getElementById('product-name');
 const quantityInput = document.getElementById('product-quantity');
 const expirationInput = document.getElementById('product-expiration');
@@ -8,33 +8,36 @@ const productList = document.getElementById('product-list');
 const emptyState = document.getElementById('empty-state');
 const productCount = document.getElementById('product-count');
 
-function readProducts() {
-    const savedProducts = localStorage.getItem(STORAGE_KEY);
+let products = [];
+let isSaving = false;
+let isLoaded = false;
 
-    if (!savedProducts) {
-        return [];
+async function requestJson(url, options) {
+    const response = await fetch(url, options);
+    const contentType = response.headers.get('content-type') || '';
+
+    if (!contentType.includes('application/json')) {
+        throw new Error('A resposta não veio da API do estoque. Abra o site em http://127.0.0.1:3000.');
     }
 
-    try {
-        const products = JSON.parse(savedProducts);
-        if (!Array.isArray(products)) {
-            throw new Error('Os dados salvos não estão no formato esperado.');
-        }
-        return products;
-    } catch (error) {
-        feedback.textContent = 'Não foi possível ler os produtos salvos. Limpe os dados deste site e tente novamente.';
-        console.error('Erro ao carregar produtos do estoque:', error);
-        return [];
+    const result = await response.json();
+    if (!response.ok) {
+        throw new Error(result.error || 'A solicitação ao servidor falhou.');
     }
+    return result;
 }
 
-let products = readProducts();
-
-function localDateString(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+function showLoadError(error) {
+    feedback.classList.remove('success');
+    const openedFromFile = window.location.protocol === 'file:';
+    const validHost = window.location.hostname === '127.0.0.1'
+        || window.location.hostname === 'localhost';
+    const openedOnWrongAddress = !validHost || window.location.port !== '3000';
+    const instructions = openedFromFile || openedOnWrongAddress
+        ? 'Inicie o servidor e abra http://127.0.0.1:3000.'
+        : 'Verifique se o servidor está em execução.';
+    feedback.textContent = `Não foi possível carregar os produtos. ${instructions} (${error.message})`;
+    console.error('Erro ao carregar produtos do estoque:', error);
 }
 
 function getDaysUntilExpiration(dateString) {
@@ -48,6 +51,26 @@ function getDaysUntilExpiration(dateString) {
 function formatDate(dateString) {
     const [year, month, day] = dateString.split('-');
     return `${day}/${month}/${year}`;
+}
+
+function parseBrazilianDate(dateString) {
+    const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(dateString);
+    if (!match) {
+        return null;
+    }
+
+    const [, day, month, year] = match;
+    const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+    if (
+        Number(year) < 1000
+        || date.getUTCFullYear() !== Number(year)
+        || date.getUTCMonth() !== Number(month) - 1
+        || date.getUTCDate() !== Number(day)
+    ) {
+        return null;
+    }
+
+    return `${year}-${month}-${day}`;
 }
 
 function createProductCard(product) {
@@ -89,6 +112,7 @@ function createProductCard(product) {
     deleteButton.className = 'delete-button';
     deleteButton.type = 'button';
     deleteButton.textContent = 'Remover';
+    deleteButton.disabled = isSaving;
     deleteButton.setAttribute('aria-label', `Remover ${product.name} do estoque`);
     deleteButton.addEventListener('click', () => removeProduct(product.id));
 
@@ -102,46 +126,62 @@ function renderProducts() {
     productCount.textContent = `${products.length} ${products.length === 1 ? 'produto' : 'produtos'} no estoque`;
 }
 
-function saveProducts() {
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
-        return true;
-    } catch (error) {
-        feedback.classList.remove('success');
-        feedback.textContent = 'Não foi possível salvar no navegador. Verifique as permissões e o espaço disponível.';
-        console.error('Erro ao salvar produtos do estoque:', error);
-        return false;
-    }
+async function saveProducts(updatedProducts) {
+    await requestJson('/api/products', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedProducts)
+    });
 }
 
-function removeProduct(productId) {
-    const updatedProducts = products.filter((product) => product.id !== productId);
-    const previousProducts = products;
-    products = updatedProducts;
+function showSaveError(error) {
+    feedback.classList.remove('success');
+    feedback.textContent = `Não foi possível salvar os produtos no arquivo JSON: ${error.message}`;
+    console.error('Erro ao salvar produtos do estoque:', error);
+}
 
-    if (!saveProducts()) {
-        products = previousProducts;
+async function removeProduct(productId) {
+    if (isSaving || !isLoaded) {
         return;
     }
 
-    feedback.classList.add('success');
-    feedback.textContent = 'Produto removido do estoque.';
+    const previousProducts = products;
+    const updatedProducts = products.filter((product) => product.id !== productId);
+    isSaving = true;
+    products = updatedProducts;
     renderProducts();
+
+    try {
+        await saveProducts(products);
+        feedback.classList.add('success');
+        feedback.textContent = 'Produto removido do estoque.';
+    } catch (error) {
+        products = previousProducts;
+        showSaveError(error);
+    } finally {
+        isSaving = false;
+        renderProducts();
+    }
 }
 
-form.addEventListener('submit', (event) => {
+form.addEventListener('submit', async (event) => {
     event.preventDefault();
+
+    if (isSaving || !isLoaded) {
+        return;
+    }
 
     const name = nameInput.value.trim();
     const quantity = Number(quantityInput.value);
-    const expiration = expirationInput.value;
+    const expiration = parseBrazilianDate(expirationInput.value.trim());
 
     if (!name || !Number.isSafeInteger(quantity) || quantity < 1 || !expiration) {
         feedback.classList.remove('success');
-        feedback.textContent = 'Informe um nome, uma quantidade inteira maior que zero e a validade.';
+        feedback.textContent = 'Informe nome, quantidade inteira maior que zero e validade no formato DD/MM/AAAA (data válida).';
         return;
     }
 
+    const previousProducts = products;
     const product = {
         id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
         name,
@@ -149,17 +189,43 @@ form.addEventListener('submit', (event) => {
         expiration
     };
 
-    products.unshift(product);
-    if (!saveProducts()) {
-        products.shift();
-        return;
-    }
-
+    products = [product, ...products];
+    isSaving = true;
+    submitButton.disabled = true;
     renderProducts();
-    form.reset();
-    nameInput.focus();
-    feedback.classList.add('success');
-    feedback.textContent = 'Produto cadastrado com sucesso.';
+
+    try {
+        await saveProducts(products);
+        form.reset();
+        nameInput.focus();
+        feedback.classList.add('success');
+        feedback.textContent = 'Produto cadastrado com sucesso.';
+    } catch (error) {
+        products = previousProducts;
+        showSaveError(error);
+    } finally {
+        isSaving = false;
+        submitButton.disabled = false;
+        renderProducts();
+    }
 });
 
-renderProducts();
+async function loadProducts() {
+    try {
+        const result = await requestJson('/api/products');
+        if (!Array.isArray(result)) {
+            throw new Error('O servidor retornou os produtos em um formato inválido.');
+        }
+
+        products = result;
+        isLoaded = true;
+        renderProducts();
+    } catch (error) {
+        showLoadError(error);
+    } finally {
+        submitButton.disabled = !isLoaded;
+    }
+}
+
+submitButton.disabled = true;
+loadProducts();
