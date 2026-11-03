@@ -3,6 +3,7 @@ from flask_login import LoginManager, login_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.exc import IntegrityError
 from db import app, db, Usuario, Produto
+# from datetime import date
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -56,9 +57,10 @@ def login():
 def validade_produtos():
     if request.method == "POST":
         produto = Produto(
-            nomeProduto=request.form["product-name"],
-            quantidade=int(request.form["product-quantity"]),
-            dataValidade=request.form["date-of-expiration"],
+            nomeProduto = request.form["product-name"],
+            quantidade = int(request.form["product-quantity"]),
+            # dataValidade = date.fromisoformat(request.form["expiration"]),
+            dataValidade = request.form["expiration"],
         )
         db.session.add(produto)
         db.session.commit()
@@ -70,5 +72,22 @@ def validade_produtos():
     return render_template("index.html", produtos=produtos)
 
 
+@app.route("/validade_produtos/<int:produto.id>", methods=["DELETE"])
+def deletar_produto(produto):
+    db.session.delete(produto.id)
+    db.session.commit()
+    return ""
+        
+    
+@app.route("/validade_produtos/<int:produto.id>", methods=["PUT"])
+def editar_produto(produto):
+    produto.nomeProduto = request.form["product-name"]
+    produto.quantidade = int(request.form["product-quantity"])
+    produto.dataValidade = request.form["expiration"]
+    db.session.commit()
+    return redirect(url_for("validade_produtos"))
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True, port=5152)
