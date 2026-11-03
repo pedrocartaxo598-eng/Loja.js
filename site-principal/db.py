@@ -4,6 +4,7 @@ from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import *
 from sqlalchemy.orm import Mapped, mapped_column
 from flask_login import UserMixin
+from datetime import date
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///projectData.db"
@@ -25,7 +26,4 @@ class Produto(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     nomeProduto: Mapped[str]
     quantidade: Mapped[int]
-    dataValidade: Mapped[str]
-
-with app.app_context():
-    db.create_all()
+    dataValidade: Mapped[date]
