@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <title>Estoque da Cantina</title>
     <link rel="stylesheet" href="../static/css/style.css">
 </head>
+
 <body>
     <main class="page">
         <header class="page-header">
@@ -28,16 +30,17 @@
             </div>
 
             <form id="product-form" method="POST">
+                <input type="hidden" id="product-id" name="product-id">
                 <div class="form-fields">
                     <div class="field">
                         <label for="product-name">Nome do produto</label>
                         <input id="product-name" name="product-name" type="text" maxlength="80"
-                               placeholder="Ex.: Suco de laranja" autocomplete="off" required>
+                            placeholder="Ex.: Suco de laranja" autocomplete="off" required>
                     </div>
                     <div class="field">
                         <label for="product-quantity">Quantidade</label>
-                        <input id="product-quantity" name="product-quantity" type="number"
-                               min="1" step="1" placeholder="Ex.: 24" required>
+                        <input id="product-quantity" name="product-quantity" type="number" min="1" step="1"
+                            placeholder="Ex.: 24" required>
                     </div>
                     <div class="field">
                         <label for="product-expiration">Data de validade</label>
@@ -46,7 +49,8 @@
                 </div>
                 <div class="form-actions">
                     <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
-                    <button class="primary-button" type="submit">Adicionar produto</button>
+                    <button class="secondary-button" type="button" id="cancel-edit" hidden>Cancelar edição</button>
+                    <button class="primary-button" id="submit-button" type="submit">Adicionar produto</button>
                 </div>
             </form>
         </section>
@@ -69,10 +73,12 @@
                 <p>Cadastre o primeiro produto usando o formulário acima.</p>
             </div>
 
-            <div id="product-list" class="product-list" aria-live="polite"></div>
+            <div id="product-list" class="product-list" aria-live="polite">
+            </div>
         </section>
         <!-- <footer>Os produtos ficam salvos neste navegador.</footer> -->
     </main>
     <script src="../static/js/script.js" defer></script>
 </body>
+
 </html>
