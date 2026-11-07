@@ -37,8 +37,8 @@ O front-end foi desenvolvido com **HTML, CSS e JavaScript**, e a próxima etapa 
 | Camada          | Tecnologia                      |
 | --------------- | ------------------------------- |
 | Front-end       | HTML5, CSS3, JavaScript         |
-| Back-end        | Flask (Python) — *planejado*    |
-| Banco de dados  | SQLite — *planejado*            |
+| Back-end        | Flask (Python)    |
+| Banco de dados  | SQLite            |
 
 ## 📂 Estrutura do projeto
 
