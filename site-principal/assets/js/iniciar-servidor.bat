@@ -1,11 +1,12 @@
 @echo off
 cd /d "%~dp0"
-echo Iniciando o servidor da cantina...
-echo Abra http://127.0.0.1:3000 no navegador.
+cd /d "%~dp0..\.."
+echo Iniciando o sistema da cantina...
+echo Abra http://127.0.0.1:5152 no navegador.
 echo Mantenha esta janela aberta enquanto usar o sistema.
-node server.js
+python __init__.py
 if errorlevel 1 (
     echo.
-    echo O servidor nao iniciou. Verifique se o Node.js esta instalado.
+    echo O sistema nao iniciou. Verifique se o Python e as dependencias estao instalados.
     pause
 )

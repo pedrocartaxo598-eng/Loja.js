@@ -7,6 +7,7 @@ const feedback = document.getElementById('feedback');
 const productList = document.getElementById('product-list');
 const emptyState = document.getElementById('empty-state');
 const productCount = document.getElementById('product-count');
+const legacyStorageKey = 'cantinaProdutos';
 
 let products = [];
 let isSaving = false;
@@ -14,10 +15,14 @@ let isLoaded = false;
 
 async function requestJson(url, options) {
     const response = await fetch(url, options);
+    if (response.status === 204) {
+        return null;
+    }
+
     const contentType = response.headers.get('content-type') || '';
 
     if (!contentType.includes('application/json')) {
-        throw new Error('A resposta não veio da API do estoque. Abra o site em http://127.0.0.1:3000.');
+        throw new Error('A resposta não veio da API do estoque. Abra o site em http://127.0.0.1:5152.');
     }
 
     const result = await response.json();
@@ -32,9 +37,9 @@ function showLoadError(error) {
     const openedFromFile = window.location.protocol === 'file:';
     const validHost = window.location.hostname === '127.0.0.1'
         || window.location.hostname === 'localhost';
-    const openedOnWrongAddress = !validHost || window.location.port !== '3000';
+    const openedOnWrongAddress = !validHost || window.location.port !== '5152';
     const instructions = openedFromFile || openedOnWrongAddress
-        ? 'Inicie o servidor e abra http://127.0.0.1:3000.'
+        ? 'Inicie o programa e abra http://127.0.0.1:5152.'
         : 'Verifique se o servidor está em execução.';
     feedback.textContent = `Não foi possível carregar os produtos. ${instructions} (${error.message})`;
     console.error('Erro ao carregar produtos do estoque:', error);
@@ -53,13 +58,13 @@ function formatDate(dateString) {
     return `${day}/${month}/${year}`;
 }
 
-function parseBrazilianDate(dateString) {
-    const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(dateString);
+function parseIsoDate(dateString) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateString);
     if (!match) {
         return null;
     }
 
-    const [, day, month, year] = match;
+    const [, year, month, day] = match;
     const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
     if (
         Number(year) < 1000
@@ -126,18 +131,47 @@ function renderProducts() {
     productCount.textContent = `${products.length} ${products.length === 1 ? 'produto' : 'produtos'} no estoque`;
 }
 
-async function saveProducts(updatedProducts) {
-    await requestJson('/api/products', {
-        method: 'PUT',
+async function createProduct(product) {
+    return requestJson('/api/products', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedProducts)
+        body: JSON.stringify(product)
     });
+}
+
+async function migrateLegacyProducts() {
+    const savedProducts = localStorage.getItem(legacyStorageKey);
+    if (savedProducts === null) {
+        return [];
+    }
+
+    let legacyProducts;
+    try {
+        legacyProducts = JSON.parse(savedProducts);
+    } catch (error) {
+        throw new Error('Os produtos antigos salvos no navegador estão em um formato inválido.');
+    }
+    if (!Array.isArray(legacyProducts)) {
+        throw new Error('Os produtos antigos salvos no navegador estão em um formato inválido.');
+    }
+
+    const result = await requestJson('/api/products/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(legacyProducts)
+    });
+    if (!result || !Array.isArray(result.products)) {
+        throw new Error('O servidor retornou um resultado inválido ao importar os produtos antigos.');
+    }
+
+    localStorage.removeItem(legacyStorageKey);
+    return result.products;
 }
 
 function showSaveError(error) {
     feedback.classList.remove('success');
-    feedback.textContent = `Não foi possível salvar os produtos no arquivo JSON: ${error.message}`;
-    console.error('Erro ao salvar produtos do estoque:', error);
+    feedback.textContent = `Não foi possível salvar os produtos no banco de dados: ${error.message}`;
+    console.error('Erro ao salvar produtos no banco de dados:', error);
 }
 
 async function removeProduct(productId) {
@@ -145,18 +179,17 @@ async function removeProduct(productId) {
         return;
     }
 
-    const previousProducts = products;
-    const updatedProducts = products.filter((product) => product.id !== productId);
     isSaving = true;
-    products = updatedProducts;
     renderProducts();
 
     try {
-        await saveProducts(products);
+        await requestJson(`/api/products/${encodeURIComponent(productId)}`, {
+            method: 'DELETE'
+        });
+        products = products.filter((product) => product.id !== productId);
         feedback.classList.add('success');
         feedback.textContent = 'Produto removido do estoque.';
     } catch (error) {
-        products = previousProducts;
         showSaveError(error);
     } finally {
         isSaving = false;
@@ -173,35 +206,31 @@ form.addEventListener('submit', async (event) => {
 
     const name = nameInput.value.trim();
     const quantity = Number(quantityInput.value);
-    const expiration = parseBrazilianDate(expirationInput.value.trim());
+    const expiration = parseIsoDate(expirationInput.value);
 
     if (!name || !Number.isSafeInteger(quantity) || quantity < 1 || !expiration) {
         feedback.classList.remove('success');
-        feedback.textContent = 'Informe nome, quantidade inteira maior que zero e validade no formato DD/MM/AAAA (data válida).';
+        feedback.textContent = 'Informe nome, quantidade inteira maior que zero e uma data de validade válida.';
         return;
     }
 
-    const previousProducts = products;
     const product = {
-        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
         name,
         quantity,
         expiration
     };
 
-    products = [product, ...products];
     isSaving = true;
     submitButton.disabled = true;
-    renderProducts();
 
     try {
-        await saveProducts(products);
+        const savedProduct = await createProduct(product);
+        products = [savedProduct, ...products];
         form.reset();
         nameInput.focus();
         feedback.classList.add('success');
         feedback.textContent = 'Produto cadastrado com sucesso.';
     } catch (error) {
-        products = previousProducts;
         showSaveError(error);
     } finally {
         isSaving = false;
@@ -219,6 +248,19 @@ async function loadProducts() {
 
         products = result;
         isLoaded = true;
+        try {
+            const migratedProducts = await migrateLegacyProducts();
+            const productsById = new Map(products.map((product) => [product.id, product]));
+            migratedProducts.forEach((product) => productsById.set(product.id, product));
+            products = Array.from(productsById.values())
+                .sort((first, second) => first.expiration.localeCompare(second.expiration));
+            if (migratedProducts.length > 0) {
+                feedback.classList.add('success');
+                feedback.textContent = 'Produtos antigos importados para o banco de dados.';
+            }
+        } catch (error) {
+            showSaveError(error);
+        }
         renderProducts();
     } catch (error) {
         showLoadError(error);

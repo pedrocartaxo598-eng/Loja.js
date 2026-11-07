@@ -27,3 +27,7 @@ class Produto(db.Model):
     nomeProduto: Mapped[str]
     quantidade: Mapped[int]
     dataValidade: Mapped[date]
+
+class ProdutoMigrado(db.Model):
+    idLegado: Mapped[str] = mapped_column(primary_key=True)
+    produto_id: Mapped[int] = mapped_column(ForeignKey("produto.id"), unique=True)
