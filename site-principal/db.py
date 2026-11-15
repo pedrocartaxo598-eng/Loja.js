@@ -27,6 +27,7 @@ class Produto(db.Model):
     nomeProduto: Mapped[str]
     quantidade: Mapped[int]
     dataValidade: Mapped[date]
+    codebar: Mapped[str | None] = mapped_column(nullable=True)
 
 class ProdutoMigrado(db.Model):
     idLegado: Mapped[str] = mapped_column(primary_key=True)
