@@ -80,6 +80,7 @@ def validade_produtos():
             nomeProduto=request.form["product-name"],
             quantidade=int(request.form["product-quantity"]),
             dataValidade=data_validade,
+            codebar=request.form["product-code"]
         )
         db.session.add(produto)
         db.session.commit()
@@ -104,6 +105,7 @@ def api_products():
                 "name": produto.nomeProduto,
                 "quantity": produto.quantidade,
                 "expiration": produto.dataValidade.isoformat(),
+                "barcode": produto.codebar
             }
             for produto in produtos
         ])
@@ -118,6 +120,13 @@ def api_products():
     nome = dados.get("name")
     quantidade = dados.get("quantity")
     validade = dados.get("expiration")
+    barcode = dados.get("barcode")
+
+    if not isinstance(barcode, str) or not barcode.strip():
+        return jsonify(error="Informe um código de barras válido."), 400
+
+    barcode = barcode.strip()
+
     if (
         not isinstance(nome, str)
         or not nome.strip()
@@ -139,6 +148,7 @@ def api_products():
         nomeProduto=nome.strip(),
         quantidade=quantidade,
         dataValidade=data_validade,
+        codebar=barcode,
     )
     db.session.add(produto)
     try:
@@ -153,6 +163,7 @@ def api_products():
         "name": produto.nomeProduto,
         "quantity": produto.quantidade,
         "expiration": produto.dataValidade.isoformat(),
+        "barcode": produto.codebar,
     }), 201
 
 

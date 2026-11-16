@@ -8,6 +8,68 @@ const productList = document.getElementById('product-list');
 const emptyState = document.getElementById('empty-state');
 const productCount = document.getElementById('product-count');
 const legacyStorageKey = 'cantinaProdutos';
+const camera_iniciar = document.getElementById('iniciar');
+const camera_fim = document.getElementById('finalizar');
+const camera = document.getElementById('Camera');
+const code_num = document.getElementById('code-num');
+
+camera_iniciar.addEventListener("click", () => {
+    camera_iniciar.classList.add("oculto");
+    camera_fim.classList.remove("oculto");
+    camera.classList.toggle("oculto");
+
+    const quaggaConf = {
+        inputStream: {
+            target: camera,
+            type: "LiveStream",
+            constraints: {
+                width: { min: 640 },
+                height: { min: 480 },
+                facingMode: "environment",
+                aspectRatio: { min: 1, max: 2 }
+            }
+        },
+        decoder: {
+            readers: [
+                'code_128_reader',
+                'ean_reader',
+                // 'code_39_reader',
+                // 'ean_8_reader',
+                // 'upc_e_reader',
+                // 'upca_reader', 
+                // 'i2of5_reader', 
+                // 'code_93_reader', 
+                // 'codabar_reader'
+            ]
+        },
+    }
+
+    Quagga.init(quaggaConf, function (err) {
+        if (err) {
+            return console.log(err);
+        }
+        Quagga.start();
+    });
+
+    Quagga.onDetected(function (result) {
+        console.log(result.codeResult.code);
+        code_num.textContent = result.codeResult.code;
+        camera.classList.toggle("oculto");
+        camera_iniciar.textContent = "Mudar código";
+        camera_iniciar.classList.remove("oculto");
+        camera_fim.classList.add("oculto");
+        Quagga.stop();
+        Quagga.offDetected();
+    });
+
+});
+
+camera_fim.addEventListener("click", () => {
+    camera.classList.toggle("oculto");
+    camera_fim.classList.add("oculto");
+    camera_iniciar.classList.remove("oculto");
+    Quagga.stop();
+});
 
 let products = [];
 let isSaving = false;
@@ -91,6 +153,10 @@ function createProductCard(product) {
     expiration.className = 'product-expiration';
     expiration.textContent = `Validade: ${formatDate(product.expiration)}`;
 
+    const code = document.createElement('p');
+    code.className = 'product-code';
+    code.textContent = `Código de barras: ${product.barcode || 'Não informado'}`;
+
     const daysRemaining = getDaysUntilExpiration(product.expiration);
     const status = document.createElement('span');
     status.className = 'expiry-status';
@@ -104,7 +170,7 @@ function createProductCard(product) {
         status.textContent = 'Dentro da validade';
     }
 
-    details.append(name, expiration, status);
+    details.append(name, code, expiration, status);
 
     const quantity = document.createElement('p');
     quantity.className = 'product-quantity';
@@ -208,16 +274,17 @@ form.addEventListener('submit', async (event) => {
     const quantity = Number(quantityInput.value);
     const expiration = parseIsoDate(expirationInput.value);
 
-    if (!name || !Number.isSafeInteger(quantity) || quantity < 1 || !expiration) {
+    if (!name || !Number.isSafeInteger(quantity) || quantity < 1 || !expiration || code_num.textContent.trim() === "") {
         feedback.classList.remove('success');
-        feedback.textContent = 'Informe nome, quantidade inteira maior que zero e uma data de validade válida.';
+        feedback.textContent = 'Informe nome, quantidade inteira maior que zero, código de barras e uma data de validade válida.';
         return;
     }
 
     const product = {
         name,
         quantity,
-        expiration
+        expiration,
+        barcode: code_num.textContent.trim()
     };
 
     isSaving = true;
@@ -227,6 +294,8 @@ form.addEventListener('submit', async (event) => {
         const savedProduct = await createProduct(product);
         products = [savedProduct, ...products];
         form.reset();
+        code_num.textContent = '';
+        camera_iniciar.textContent = 'Iniciar câmera';
         nameInput.focus();
         feedback.classList.add('success');
         feedback.textContent = 'Produto cadastrado com sucesso.';

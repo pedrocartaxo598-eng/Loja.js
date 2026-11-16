@@ -7,6 +7,7 @@
     <meta name="theme-color" content="#28724a">
     <title>Estoque da Cantina</title>
     <link rel="stylesheet" href="../static/css/style.css">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2/dist/quagga.min.js"></script>
 </head>
 
 <body>
@@ -46,11 +47,18 @@
                         <label for="product-expiration">Data de validade</label>
                         <input id="product-expiration" name="expiration" type="date" required>
                     </div>
+                    <div class="field" id="code-bar">
+                        <label for="Camera">Codigo de Barras</label>
+                        <p id="code-num"></p>
+                        <div id="Camera" class="oculto"></div>
+                        <button id="iniciar" class="botao" type="button">Iniciar Leitura</button>
+                        <button class="oculto botao" id="finalizar" type="button">Finalizar Leitura</button>
+                    </div>
                 </div>
                 <div class="form-actions">
                     <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
-                    <button class="secondary-button" type="button" id="cancel-edit" hidden>Cancelar edição</button>
-                    <button class="primary-button" id="submit-button" type="submit">Adicionar produto</button>
+                    <button class="secondary-button botao" type="button" id="cancel-edit" hidden>Cancelar edição</button>
+                    <button class="primary-button botao" id="submit-button" type="submit">Adicionar produto</button>
                 </div>
             </form>
         </section>
